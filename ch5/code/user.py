@@ -1,3 +1,5 @@
+from flask_restful import Resource, reqparse
+
 import sqlite3
 
 class User:
@@ -5,7 +7,7 @@ class User:
         self.id=_id
         self.username = username
         self.password = password
-        
+    
     @classmethod
     def find_by_username(cls, username):
         connection = sqlite3.connect('data.db')
@@ -37,3 +39,22 @@ class User:
 
         connection.close()
         return user
+
+class UserRegister(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('username', type=str, required=True)
+    parser.add_argument('password', type=str, required=True)
+
+    def post(self):
+        data = UserRegister.parser.parse_args()
+
+        connection = sqlite3.connect('data.db')
+        cursor = connection.cursor()
+
+        query = "INSERT INTO user VALUES (NULL, ?, ?)"
+        cursor.execute(query, (data['username'], data['password']))
+
+        connection.commit()
+        connection.close()
+
+        return {'message', 'User created successfully'}, 201
