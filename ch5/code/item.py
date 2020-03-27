@@ -59,7 +59,7 @@ class Item(Resource):
 
         item = self.find_by_name(name)
         updated_item = {'name': name, 'price': data['price']}
-        
+
         if not item:
             try:
                 self.insert(updated_item)
@@ -67,7 +67,7 @@ class Item(Resource):
                 return {'message': 'error occurred inserting to database'}, 500
         else:
             try:
-                self.update(data)
+                self.update(updated_item)
             except:
                 return {'message': 'error occurred updating database'}, 500
         return updated_item
@@ -82,6 +82,7 @@ class Item(Resource):
 
         connection.commit()
         connection.close()
+
     def delete(self, name):
         connection = sqlite3.connect('data.db')
         cursor = connection.cursor()
@@ -96,4 +97,15 @@ class Item(Resource):
 
 class ItemList(Resource):
     def get(self):
+        connection = sqlite3.connect('data.db')
+        cursor = connection.cursor()
+
+        query = "SELECT * FROM items"
+        result = cursor.execute(query)
+
+        items = []
+        for row in result:
+            items.append({'name': row[0], 'price': row[1]})
+
+        connection.close()
         return {'items': items}
