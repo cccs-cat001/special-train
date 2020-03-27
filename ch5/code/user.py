@@ -47,14 +47,17 @@ class UserRegister(Resource):
 
     def post(self):
         data = UserRegister.parser.parse_args()
+        
+        if User.find_by_username(data['username']):
+            return {'message': 'User {} already exists'.format(data['username'])}
 
         connection = sqlite3.connect('data.db')
         cursor = connection.cursor()
 
-        query = "INSERT INTO user VALUES (NULL, ?, ?)"
+        query = "INSERT INTO users VALUES (NULL, ?, ?)"
         cursor.execute(query, (data['username'], data['password']))
 
         connection.commit()
         connection.close()
 
-        return {'message', 'User created successfully'}, 201
+        return {'message': 'User created successfully'}, 201
